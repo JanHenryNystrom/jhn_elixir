@@ -58,8 +58,7 @@ defmodule JhnElixir.GenStatem do
   # Callbacks
   # ====================
 
-  @callback callback_mode() ::
-    callback_mode | [callback_mode | :state_enter]
+  @callback callback_mode() :: callback_mode | [callback_mode | :state_enter]
 
   @callback init(init_arg :: term) ::
     {:ok, state, data}
@@ -128,9 +127,15 @@ defmodule JhnElixir.GenStatem do
   # Macros
   # ====================
 
-  defmacro __using__(_) do
-    quote location: :keep do
+  defmacro __using__(opts) do
+    quote location: :keep, bind_quoted: [opts: opts] do
       @behaviour GenStatem
+
+      def child_spec(init_arg) do
+        default = %{id: __MODULE__,
+                    start: {__MODULE__, :start_link, [init_arg]}}
+        Supervisor.child_spec(default, unquote(Macro.escape(opts)))
+      end
 
       # TODO: Remove this on v2.0
       @before_compile GenStatem
@@ -152,7 +157,8 @@ defmodule JhnElixir.GenStatem do
         {:ok, state}
       end
 
-      defoverridable callback_mode: 0,
+      defoverridable child_spec: 1,
+                     callback_mode: 0,
                      handle_event: 4,
                      code_change: 3,
                      terminate: 2

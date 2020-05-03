@@ -148,9 +148,15 @@ defmodule JhnElixir.GenServer do
   # Macros
   # ====================
 
-  defmacro __using__(_) do
-    quote location: :keep do
+  defmacro __using__(opts) do
+    quote location: :keep, bind_quoted: [opts: opts] do
       @behaviour GenServer
+
+      def child_spec(init_arg) do
+        default = %{id: __MODULE__,
+                    start: {__MODULE__, :start_link, [init_arg]}}
+        Supervisor.child_spec(default, unquote(Macro.escape(opts)))
+      end
 
       # TODO: Remove this on v2.0
       @before_compile GenServer
@@ -178,11 +184,12 @@ defmodule JhnElixir.GenServer do
         {:ok, state}
       end
 
-      defoverridable code_change: 3,
-                     terminate: 2,
-                     handle_info: 2,
+      defoverridable child_spec: 1,
+                     handle_call: 3,
                      handle_cast: 2,
-                     handle_call: 3
+                     handle_info: 2,
+                     code_change: 3,
+                     terminate: 2
     end
   end
 
