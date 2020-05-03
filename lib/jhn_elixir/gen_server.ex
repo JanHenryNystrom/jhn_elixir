@@ -1,0 +1,193 @@
+defmodule JhnElixir.GenServer do
+
+  alias JhnElixir.Gen
+
+  # ====================
+  # API
+  # ====================
+
+  # --------------------
+  @spec start(module, any, options) :: on_start
+  # --------------------
+  def start(module, init_arg, options \\ []) do
+    Gen.start(:gen_server, module, init_arg, options)
+  end
+
+  # --------------------
+  @spec stop(server, reason :: term, timeout) :: :ok
+  # --------------------
+  def stop(server, reason \\ :normal, timeout \\ :infinity) do
+    Gen.stop(server, reason, timeout)
+  end
+
+  # --------------------
+  @spec call(server, term, timeout) :: term
+  # --------------------
+  def call(server, request, timeout \\ 5000) do
+    Gen.call(server, request, timeout)
+  end
+
+  # --------------------
+  @spec multi_call([node], name :: atom, term, timeout) ::
+          {replies :: [{node, term}], bad_nodes :: [node]}
+  # --------------------
+  def multi_call(nodes\\[node()|Node.list()],name, req, timeout \\ :infinity) do
+    :gen_server.multi_call(nodes, name, req, timeout)
+  end
+
+  # --------------------
+  @spec cast(server, term) :: :ok
+  # --------------------
+  def cast(server, message) do
+    Gen.cast(server, message)
+  end
+
+  # --------------------
+  @spec abcast([node], name :: atom, term) :: :abcast
+  # --------------------
+  def abcast(nodes \\ [node() | Node.list()], name, message) do
+    for node <- nodes do
+      cast({name, node}, message)
+    end
+    :abcast
+  end
+
+  # --------------------
+  @spec reply(from, term) :: :ok
+  # --------------------
+  def reply(from, reply) do
+    Gen.reply(from, reply)
+  end
+
+  # ====================
+  # Callbacks
+  # ====================
+
+  @callback init(init_arg :: term) ::
+    {:ok, state}
+    | {:ok, state, timeout | :hibernate | {:continue, term}}
+    | :ignore
+    | {:stop, reason :: any}
+      when state: any
+
+  @callback handle_call(request :: term, from, state :: term) ::
+    {:reply, reply, new_state}
+    | {:reply, reply, new_state, timeout | :hibernate | {:continue, term}}
+    | {:noreply, new_state}
+    | {:noreply, new_state, timeout | :hibernate | {:continue, term}}
+    | {:stop, reason, reply, new_state}
+    | {:stop, reason, new_state}
+      when reply: term, new_state: term, reason: term
+
+  @callback handle_cast(request :: term, state :: term) ::
+    {:noreply, new_state}
+    | {:noreply, new_state, timeout | :hibernate | {:continue, term}}
+    | {:stop, reason :: term, new_state}
+      when new_state: term
+
+  @callback handle_info(msg :: :timeout | term, state :: term) ::
+    {:noreply, new_state}
+    | {:noreply, new_state, timeout | :hibernate | {:continue, term}}
+    | {:stop, reason :: term, new_state}
+      when new_state: term
+
+  @callback handle_continue(continue :: term, state :: term) ::
+    {:noreply, new_state}
+    | {:noreply, new_state, timeout | :hibernate | {:continue, term}}
+    | {:stop, reason :: term, new_state}
+      when new_state: term
+
+  @callback terminate(reason, state :: term) :: term
+      when reason: :normal | :shutdown | {:shutdown, term} | term
+
+  @callback code_change(old_vsn, state :: term, extra :: term) ::
+    {:ok, new_state :: term}
+    | {:error, reason :: term}
+      when old_vsn: term | {:down, term}
+
+  @callback format_status(reason, pdict_and_state :: list) :: term
+      when reason: :normal | :terminate
+
+  @optional_callbacks code_change: 3,
+                      terminate: 2,
+                      handle_info: 2,
+                      handle_cast: 2,
+                      handle_call: 3,
+                      format_status: 2,
+                      handle_continue: 2
+
+  # ====================
+  # Types
+  # ====================
+
+  @type on_start :: {:ok, pid} |
+                    :ignore |
+                    {:error, {:already_started, pid} | term}
+
+  @type name :: atom | {:global, term} | {:via, module, term}
+
+  @type link :: :link | :nolink
+
+  @type options :: [option]
+
+  @type option ::
+          {:name, name} |
+          {:link, link} |
+          {:debug, debug} |
+          {:timeout, timeout} |
+          {:spawn_opt, Process.spawn_opt()} |
+          {:hibernate_after, timeout}
+
+  @type debug :: [:trace | :log | :statistics | {:log_to_file, Path.t()}]
+
+  @type server :: pid | name | {atom, node}
+
+  @type from :: {pid, tag :: term}
+
+  # ====================
+  # Macros
+  # ====================
+
+  defmacro __using__(_) do
+    quote location: :keep do
+      @behaviour GenServer
+
+      # TODO: Remove this on v2.0
+      @before_compile GenServer
+
+      def handle_call(msg, _from, state) do
+        Gen.unexpected(__MODULE__, :call, msg)
+        {:noreply, state}
+      end
+
+      def handle_cast(msg, state) do
+        Gen.unexpected(__MODULE__, :cast, msg)
+        {:noreply, state}
+      end
+
+      def handle_info(msg, state) do
+        Gen.unexpected(__MODULE__, :info, msg)
+        {:noreply, state}
+      end
+
+      def terminate(_, _) do
+        :ok
+      end
+
+      def code_change(_, state, _) do
+        {:ok, state}
+      end
+
+      defoverridable code_change: 3,
+                     terminate: 2,
+                     handle_info: 2,
+                     handle_cast: 2,
+                     handle_call: 3
+    end
+  end
+
+  # ====================
+  # Internal functions
+  # ====================
+
+end
