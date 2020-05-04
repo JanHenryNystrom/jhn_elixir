@@ -171,7 +171,7 @@ defmodule JhnElixir.GenServer do
 
       def child_spec(init_arg) do
         default = %{id: __MODULE__,
-                    start: {__MODULE__, :start_link, [init_arg]}}
+                    start: {__MODULE__, :start, [init_arg]}}
         Supervisor.child_spec(default, unquote(Macro.escape(opts)))
       end
 
