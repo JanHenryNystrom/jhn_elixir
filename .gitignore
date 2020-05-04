@@ -24,3 +24,6 @@ jhn_elixir-*.tar
 
 # Ignore auto-saves
 *~
+
+# Trying to avoid a stroke.
+mix.lock
