@@ -111,19 +111,6 @@ defmodule JhnElixir.Supervisor do
   end
 
   # ====================
-  # Callbacks
-  # ====================
-
-  @callback init(init_arg :: term) ::
-    {:ok, state}
-    | {:ok, state, timeout | :hibernate | {:continue, term}}
-    | :ignore
-    | {:stop, reason :: any}
-      when state: any
-
-  @optional_callbacks init: 1
-
-  # ====================
   # Types
   # ====================
 
