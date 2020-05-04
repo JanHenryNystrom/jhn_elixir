@@ -7,6 +7,15 @@ defmodule JhnElixir.Supervisor do
   # ====================
 
   # --------------------
+  @spec child_spec(child_spec(), keyword) :: child_spec()
+  # --------------------
+  def child_spec(spec, overrides) do
+    Enum.reduce(overrides,
+                child(spec),
+                fn ({key, value}, acc) -> Map.put(acc, key, value) end)
+  end
+
+  # --------------------
   @spec start(any, options) :: on_start
   # --------------------
   def start(children, options \\ []) do
@@ -28,6 +37,9 @@ defmodule JhnElixir.Supervisor do
   # --------------------
   @spec start_child(server, child_spec) :: on_child_start
   # --------------------
+  def start_child(server, args) when is_list(args) do
+    Gen.call(server, {:start_child, args}, :infinity)
+  end
   def start_child(server, spec) do
     Gen.call(server, {:start_child, child(spec)}, :infinity)
   end
@@ -161,13 +173,17 @@ defmodule JhnElixir.Supervisor do
     child({module, :no_arg})
   end
   defp child({module, arg}) do
-    module.child_spec(arg)
+    child(module.child_spec(arg))
   end
   defp child(map) when is_map(map) do
     map
   end
-  defp child({_, _, _, _, _, _} = tuple) do
-    tuple
+  defp child({id, start, restart, shutdown, type, modules}) do
+    %{:id => id,
+      :start => start,
+      :restart => restart,
+      :shutdown => shutdown,
+      :type => type,
+      :modules => modules}
   end
-
 end

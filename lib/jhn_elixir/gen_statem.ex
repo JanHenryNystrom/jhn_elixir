@@ -1,6 +1,7 @@
 defmodule JhnElixir.GenStatem do
 
   alias JhnElixir.Gen
+  alias JhnElixir.Supervisor
 
   # ====================
   # API
