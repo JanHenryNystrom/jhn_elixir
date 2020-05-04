@@ -32,15 +32,29 @@ defmodule JhnElixir.Supervisor do
   end
 
   # --------------------
-  @spec start(any, options) :: on_start
+  @spec init([child_spec()], keyword) :: on_init
   # --------------------
-  def start(children, options \\ []) do
+  def init(children, options) do
+    strategy = Keyword.get(options, :strategy, :one_for_one)
+    intensity = Keyword.get(options, :max_restarts, 0)
+    period = Keyword.get(options, :max_seconds, 1)
+    flags = %{strategy: strategy, intensity: intensity, period: period}
+    {:ok, {flags, Enum.map(children, &child/1)}}
+  end
+
+  # --------------------
+  @spec start({module, any} | [child_spec], options) :: on_start
+  # --------------------
+  def start(spec, options \\ []) do
     name = case Keyword.get(options, :name) do
              nil -> :self
              name -> name
            end
-    init_args = {children, options}
-    Gen.start(:gen_server, :supervisor, {name, __MODULE__, init_args}, options)
+    arg = case spec do
+            {module, init_arg} -> {name, module, init_arg}
+            children -> {name, __MODULE__, init(children, options)}
+          end
+    Gen.start(:gen_server, :supervisor, arg, options)
   end
 
   # --------------------
@@ -100,15 +114,19 @@ defmodule JhnElixir.Supervisor do
   # ====================
 
   # --------------------
-  @spec init({[child_spec], options}) :: :ok | {:error, term}
+  @spec init(tuple) :: {:ok, tuple}
   # --------------------
-  def init({children, options}) do
-    strategy = Keyword.get(options, :strategy, :one_for_one)
-    intensity = Keyword.get(options, :max_restarts, 0)
-    period = Keyword.get(options, :max_seconds, 1)
-    flags = %{strategy: strategy, intensity: intensity, period: period}
-    {:ok, {flags, Enum.map(children, &child/1)}}
+  def init(spec) do
+    spec
   end
+
+  # ====================
+  # Callbacks
+  # ====================
+
+  @callback init(init_arg :: term) :: on_init
+
+  @optional_callbacks init: 1
 
   # ====================
   # Types
@@ -117,6 +135,8 @@ defmodule JhnElixir.Supervisor do
   @type on_start :: {:ok, pid} |
                     :ignore |
                     {:error, {:already_started, pid} | term}
+
+  @type on_init :: {:ok, {:supervisor.sup_flags(), [:supervisor.child_spec()]}}
 
   @type name :: atom | {:global, term} | {:via, module, term}
 
@@ -164,7 +184,16 @@ defmodule JhnElixir.Supervisor do
                     start: {__MODULE__, :start, [init_arg]}}
         Supervisor.child_spec(default, unquote(Macro.escape(opts)))
       end
-      defoverridable child_spec: 1
+
+      # TODO: Remove this on v2.0
+      @before_compile Supervisor
+
+      def init(_) do
+        init([], [])
+      end
+
+      defoverridable child_spec: 1,
+                     init: 1
     end
   end
 
