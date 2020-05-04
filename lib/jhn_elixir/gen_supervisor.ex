@@ -186,7 +186,7 @@ defmodule JhnElixir.Supervisor do
   # ====================
 
   defp child(module) when is_atom(module) do
-    child({module, :no_arg})
+    child({module, []})
   end
   defp child({module, arg}) do
     child(module.child_spec(arg))
