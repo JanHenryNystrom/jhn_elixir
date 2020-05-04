@@ -3,6 +3,6 @@ defmodule JhnElixirTest do
   doctest JhnElixir
 
   test "greets the world" do
-    assert JhnElixir.hello() == :world
+    assert JhnElixir.test() == false
   end
 end
