@@ -146,7 +146,7 @@ defmodule JhnElixir.GenStatem do
 
   defmacro __using__(opts) do
     quote location: :keep, bind_quoted: [opts: opts] do
-      @behaviour GenStatem
+      @behaviour JhnElixir.GenStatem
 
       def child_spec(init_arg) do
         default = %{id: __MODULE__,
@@ -155,7 +155,7 @@ defmodule JhnElixir.GenStatem do
       end
 
       # TODO: Remove this on v2.0
-      @before_compile GenStatem
+      @before_compile JhnElixir.GenStatem
 
       def callback_mode() do
         :state_functions
@@ -180,6 +180,10 @@ defmodule JhnElixir.GenStatem do
                      code_change: 3,
                      terminate: 2
     end
+  end
+
+  defmacro __before_compile__(_) do
+    :ok
   end
 
   # ====================

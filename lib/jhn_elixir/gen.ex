@@ -41,7 +41,8 @@ defmodule JhnElixir.Gen do
   end
 
   def call(server, request, timeout) do
-    :gen.call(server, :"$gen_call", request, timeout)
+    {:ok, result} = :gen.call(server, :"$gen_call", request, timeout)
+    result
   end
 
   def cast(server, message) do

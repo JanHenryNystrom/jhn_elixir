@@ -167,7 +167,7 @@ defmodule JhnElixir.GenServer do
 
   defmacro __using__(opts) do
     quote location: :keep, bind_quoted: [opts: opts] do
-      @behaviour GenServer
+      @behaviour JhnElixir.GenServer
 
       def child_spec(init_arg) do
         default = %{id: __MODULE__,
@@ -176,7 +176,7 @@ defmodule JhnElixir.GenServer do
       end
 
       # TODO: Remove this on v2.0
-      @before_compile GenServer
+      @before_compile JhnElixir.GenServer
 
       def handle_call(msg, _from, state) do
         Gen.unexpected(__MODULE__, :call, msg)
@@ -208,6 +208,10 @@ defmodule JhnElixir.GenServer do
                      code_change: 3,
                      terminate: 2
     end
+  end
+
+  defmacro __before_compile__(_) do
+    :ok
   end
 
   # ====================

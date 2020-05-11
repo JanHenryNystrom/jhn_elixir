@@ -177,24 +177,30 @@ defmodule JhnElixir.Supervisor do
 
   defmacro __using__(opts) do
     quote location: :keep, bind_quoted: [opts: opts] do
-      @behaviour Supervisor
+      @behaviour JhnElixir.Supervisor
 
       def child_spec(init_arg) do
         default = %{id: __MODULE__,
-                    start: {__MODULE__, :start, [init_arg]}}
-        Supervisor.child_spec(default, unquote(Macro.escape(opts)))
+                    start: {__MODULE__, :start, [init_arg]},
+                    type: :supervisor,
+                    shutdown: :infinity}
+        JhnElixir.Supervisor.child_spec(default, unquote(Macro.escape(opts)))
       end
 
       # TODO: Remove this on v2.0
-      @before_compile Supervisor
+      @before_compile JhnElixir.Supervisor
 
       def init(_) do
-        init([], [])
+        JhnElixir.Supervisor.init([], [])
       end
 
       defoverridable child_spec: 1,
                      init: 1
     end
+  end
+
+  defmacro __before_compile__(_) do
+    :ok
   end
 
   # ====================
