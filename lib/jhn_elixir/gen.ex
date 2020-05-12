@@ -16,6 +16,7 @@
 defmodule JhnElixir.Gen do
   Module.register_attribute __MODULE__, :copyright, persist: true
   @copyright "(C) 2020, Jan Henry Nystrom <JanHenryNystrom@gmail.com>"
+  @moduledoc false
   require Logger
 
   # ====================

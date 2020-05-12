@@ -21,7 +21,7 @@ defmodule JhnElixir do
   @moduledoc """
   A few bits and bobs to work with Elixir
   author: Jan Henry Nystrom <JanHenryNystrom@gmail.com>
-  copyright: (C) 2013-2017, Jan Henry Nystrom <JanHenryNystrom@gmail.com>
+  copyright: (C) 2020, Jan Henry Nystrom <JanHenryNystrom@gmail.com>
   """
 
   @doc """

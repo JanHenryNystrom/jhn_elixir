@@ -74,6 +74,7 @@ end
 defmodule JhnElixir.Managed.Manager do
   Module.register_attribute __MODULE__, :copyright, persist: true
   @copyright "(C) 2020, Jan Henry Nystrom <JanHenryNystrom@gmail.com>"
+  @moduledoc false
   use JhnElixir.GenServer
   alias JhnElixir.Supervisor
   require Logger
@@ -108,7 +109,6 @@ defmodule JhnElixir.Managed.Manager do
   # ====================
   # Supervisor callback
   # ====================
-
   def child_spec(name) do
     default = %{id: __MODULE__,
                 start: {__MODULE__, :start, [[name: name]]}}
@@ -186,6 +186,7 @@ end
 defmodule JhnElixir.Managed.Supervisor do
   Module.register_attribute __MODULE__, :copyright, persist: true
   @copyright "(C) 2020, Jan Henry Nystrom <JanHenryNystrom@gmail.com>"
+  @moduledoc false
   use JhnElixir.Supervisor
   alias JhnElixir.Managed.Manager
 

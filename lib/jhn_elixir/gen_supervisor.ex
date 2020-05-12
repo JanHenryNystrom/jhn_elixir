@@ -190,6 +190,7 @@ defmodule JhnElixir.Supervisor do
       # TODO: Remove this on v2.0
       @before_compile JhnElixir.Supervisor
 
+      @doc false
       def init(_) do
         JhnElixir.Supervisor.init([], [])
       end

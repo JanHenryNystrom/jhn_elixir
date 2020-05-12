@@ -178,25 +178,30 @@ defmodule JhnElixir.GenServer do
       # TODO: Remove this on v2.0
       @before_compile JhnElixir.GenServer
 
+      @doc false
       def handle_call(msg, _from, state) do
         Gen.unexpected(__MODULE__, :call, msg)
         {:noreply, state}
       end
 
+      @doc false
       def handle_cast(msg, state) do
         Gen.unexpected(__MODULE__, :cast, msg)
         {:noreply, state}
       end
 
+      @doc false
       def handle_info(msg, state) do
         Gen.unexpected(__MODULE__, :info, msg)
         {:noreply, state}
       end
 
+      @doc false
       def terminate(_, _) do
         :ok
       end
 
+      @doc false
       def code_change(_, state, _) do
         {:ok, state}
       end

@@ -162,19 +162,23 @@ defmodule JhnElixir.GenStatem do
       # TODO: Remove this on v2.0
       @before_compile JhnElixir.GenStatem
 
+      @doc false
       def callback_mode() do
         :state_functions
       end
 
+      @doc false
       def handle_event(event, content, state, data) do
         Gen.unexpected(__MODULE__, :event, event)
         :keep_state_and_data
       end
 
+      @doc false
       def terminate(_, _) do
         :ok
       end
 
+      @doc false
       def code_change(_, state, _) do
         {:ok, state}
       end
