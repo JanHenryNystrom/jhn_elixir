@@ -95,6 +95,11 @@ defmodule JhnElixir.GenStatem do
   @callback format_status(reason, pdict_and_state :: list) :: term
       when reason: :normal | :terminate
 
+  @optional_callbacks callback_mode: 0,
+                      code_change: 3,
+                      terminate: 2,
+                      format_status: 2
+
   # ====================
   # Types
   # ====================
